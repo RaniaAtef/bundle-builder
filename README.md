@@ -6,13 +6,13 @@ React + Vite prototype for the multi-step security-system bundle builder take-ho
 
 ```bash
 npm install
-npm run dev
+npm run api
 ```
 
-Run the Node save/restore API in a second terminal:
+Run the frontend in a second terminal:
 
 ```bash
-npm run api
+npm run dev
 ```
 
 For a production build:
@@ -24,7 +24,8 @@ npm run preview
 
 ## Notes
 
-- The UI is fully data-driven from [`src/data/catalog.js`](./src/data/catalog.js).
+- Product and step data live in [`src/data/catalog.json`](./src/data/catalog.json).
+- The Node API serves the shared catalog from `GET /api/catalog`; the frontend uses the bundled JSON as a fallback when the API is unavailable.
 - Variant quantities are tracked independently per product variant and stay in sync with the review panel.
 - "Save my system for later" stores the current configuration through the Node API and keeps `localStorage` as a fallback.
 - Product imagery is stored under `public/images` and referenced from the catalog.

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { STEPS } from './data/catalog';
+import { useEffect, useMemo, useState } from 'react';
+import { LOCAL_CATALOG, loadCatalog } from './data/catalog';
 import { useSystem } from './hooks/useSystem';
 import { SystemProvider } from './store/SystemContext';
 import { stepSelectedCount, buildReviewGroups, computeTotals } from './store/selectors';
@@ -8,12 +8,30 @@ import ReviewPanel from './components/review/ReviewPanel';
 
 function AppContent() {
   const { state, actions, save, wasRestored } = useSystem();
+  const [catalog, setCatalog] = useState(LOCAL_CATALOG);
   const [savedMessage, setSavedMessage] = useState(
     wasRestored ? 'Saved system restored from your last visit.' : '',
   );
   const [checkoutMessage, setCheckoutMessage] = useState('');
 
-  const reviewGroups = useMemo(() => buildReviewGroups(state), [state]);
+  useEffect(() => {
+    let ignore = false;
+
+    loadCatalog()
+      .then((nextCatalog) => {
+        if (!ignore) setCatalog(nextCatalog);
+      })
+      .catch(() => {});
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const reviewGroups = useMemo(
+    () => buildReviewGroups(state, catalog),
+    [state, catalog],
+  );
   const totals = useMemo(() => computeTotals(reviewGroups), [reviewGroups]);
 
   const handleSave = async () => {
@@ -45,7 +63,7 @@ function AppContent() {
       <div className="mx-auto max-w-[1234px] px-4 py-8 sm:px-6 lg:px-0 lg:py-[44px]">
         <section className="grid gap-[30px] xl:grid-cols-[792px_412px]">
           <div>
-            {STEPS.map((step, index) => (
+            {catalog.steps.map((step, index) => (
               <BuilderStep
                 key={step.id}
                 step={step}
@@ -54,8 +72,8 @@ function AppContent() {
                 isOpen={state.openStepId === step.id}
                 onToggle={() => actions.toggleStep(step.id)}
                 onNext={
-                  index < STEPS.length - 1
-                    ? () => actions.openStep(STEPS[index + 1].id)
+                  index < catalog.steps.length - 1
+                    ? () => actions.openStep(catalog.steps[index + 1].id)
                     : null
                 }
               />

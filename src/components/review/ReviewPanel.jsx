@@ -127,7 +127,7 @@ export default function ReviewPanel({
 
           <div className="text-right">
             <div className="mb-3 inline-flex rounded-[3px] bg-accent px-2 py-1 text-[11px] font-medium text-white">
-              as low as $19/mo
+              as low as {formatPerMonth(totals.financingMonthly)}
             </div>
             <div>
               {totals.preDiscount > totals.total ? (

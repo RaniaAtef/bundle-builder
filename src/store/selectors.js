@@ -1,24 +1,10 @@
 import {
-  PRODUCT_STEP,
-  STEPS,
-  REVIEW_GROUP_ORDER,
+  LOCAL_CATALOG,
   getProduct,
   getVariant,
   defaultVariantId,
 } from '../data/catalog';
 import { lineKey, parseLineKey } from '../lib/keys';
-
-
-const PRODUCT_ORDER = {};
-const VARIANT_ORDER = {};
-STEPS.forEach((step) => {
-  step.products.forEach((product, productIndex) => {
-    PRODUCT_ORDER[product.id] = productIndex;
-    (product.variants ?? []).forEach((variant, variantIndex) => {
-      VARIANT_ORDER[`${product.id}:${variant.id}`] = variantIndex;
-    });
-  });
-});
 
 
 /** The variant a card currently displays (falls back to the first one). */
@@ -80,39 +66,50 @@ function makeLine(product, variant, qty, { editable, perMonth = false }) {
  * Builds the review panel model: every variant with qty > 0 becomes its own
  * line, grouped under its category subheading, plus the selected plan.
  */
-export function buildReviewGroups(state) {
+export function buildReviewGroups(state, catalog = LOCAL_CATALOG) {
   const byGroup = new Map();
+  const productOrder = {};
+  const variantOrder = {};
   const push = (group, line) => {
     if (!byGroup.has(group)) byGroup.set(group, []);
     byGroup.get(group).push(line);
   };
 
+  catalog.steps.forEach((step) => {
+    step.products.forEach((product, productIndex) => {
+      productOrder[product.id] = productIndex;
+      (product.variants ?? []).forEach((variant, variantIndex) => {
+        variantOrder[`${product.id}:${variant.id}`] = variantIndex;
+      });
+    });
+  });
+
   for (const [key, qty] of Object.entries(state.quantities)) {
     if (!qty) continue;
     const { productId, variantId } = parseLineKey(key);
-    const product = getProduct(productId);
+    const product = getProduct(catalog, productId);
     if (!product) continue; // stale key from an older catalog — skip it
     const variant = getVariant(product, variantId);
     if (variantId && product.variants && !variant) continue;
-    push(PRODUCT_STEP[productId].reviewGroup, makeLine(product, variant, qty, { editable: true }));
+    push(catalog.productStep[productId].reviewGroup, makeLine(product, variant, qty, { editable: true }));
   }
 
-  const plan = getProduct(state.selectedPlanId);
+  const plan = getProduct(catalog, state.selectedPlanId);
   if (plan) {
     push('Plan', makeLine(plan, null, 1, { editable: false, perMonth: true }));
   }
 
   for (const lines of byGroup.values()) {
     lines.sort((a, b) => {
-      const byProduct = PRODUCT_ORDER[a.productId] - PRODUCT_ORDER[b.productId];
+      const byProduct = productOrder[a.productId] - productOrder[b.productId];
       if (byProduct !== 0) return byProduct;
-      const av = VARIANT_ORDER[`${a.productId}:${a.variantId}`] ?? 0;
-      const bv = VARIANT_ORDER[`${b.productId}:${b.variantId}`] ?? 0;
+      const av = variantOrder[`${a.productId}:${a.variantId}`] ?? 0;
+      const bv = variantOrder[`${b.productId}:${b.variantId}`] ?? 0;
       return av - bv;
     });
   }
 
-  return REVIEW_GROUP_ORDER.filter((group) => byGroup.has(group)).map((group) => ({
+  return catalog.reviewGroupOrder.filter((group) => byGroup.has(group)).map((group) => ({
     group,
     lines: byGroup.get(group),
   }));

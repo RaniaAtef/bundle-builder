@@ -1,9 +1,11 @@
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { createBundleStore } from './store.js';
 
 const PORT = Number(process.env.PORT ?? 4000);
 const store = createBundleStore();
+const CATALOG_PATH = new URL('../../src/data/catalog.json', import.meta.url);
 
 function sendJson(res, status, payload) {
   res.writeHead(status, {
@@ -61,6 +63,12 @@ async function handleRequest(req, res) {
 
   if (req.method === 'GET' && url.pathname === '/api/health') {
     sendJson(res, 200, { ok: true });
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/catalog') {
+    const catalog = JSON.parse(await readFile(CATALOG_PATH, 'utf8'));
+    sendJson(res, 200, catalog);
     return;
   }
 
