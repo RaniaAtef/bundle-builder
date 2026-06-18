@@ -93,6 +93,7 @@ export function buildReviewGroups(state) {
     const product = getProduct(productId);
     if (!product) continue; // stale key from an older catalog — skip it
     const variant = getVariant(product, variantId);
+    if (variantId && product.variants && !variant) continue;
     push(PRODUCT_STEP[productId].reviewGroup, makeLine(product, variant, qty, { editable: true }));
   }
 
