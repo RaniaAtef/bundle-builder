@@ -1,9 +1,3 @@
-/**
- * Product + step source of truth for the bundle builder.
- *
- * The content mirrors the supplied Wyze reference UI so the rendered prototype
- * matches the provided layout and pricing more closely.
- */
 export const STEPS = [
   {
     id: 'cameras',
@@ -34,14 +28,11 @@ export const STEPS = [
         image: '/images/img2.png',
         price: { active: 3498, compareAt: 3998 },
         reviewPrice: { active: 2399, compareAt: 2899 },
-        // variants: [
-        //   { id: 'white', label: 'White', swatch: '#eef3ee' },
-        //   { id: 'black', label: 'Black', swatch: '#171717' },
-        // ],
         variants: [
           { id: 'white', label: 'White', swatch: '#edf2e7', image: '/images/campan.png' },
-          { id: 'grey', label: 'black', swatch: '#111111', image: "/images/campanblack.png" }
-    ]},
+          { id: 'grey', label: 'black', swatch: '#111111', image: '/images/campanblack.png' },
+        ],
+      },
       {
         id: 'wyze-cam-floodlight-v2',
         title: 'Wyze Cam Floodlight v2',
@@ -68,8 +59,8 @@ export const STEPS = [
         image: '/images/wyze-battery-cam-pro.png',
         price: { active: 8998 },
         variants: [
-          { id: 'white', label: 'White', swatch: '#f7f6f1' , image: '/images/batterycamwhite.png' },
-          { id: 'black', label: 'Black', swatch: '#252525',image:"/images/batterycamblack.png" },
+          { id: 'white', label: 'White', swatch: '#f7f6f1', image: '/images/batterycamwhite.png' },
+          { id: 'black', label: 'Black', swatch: '#252525', image: '/images/batterycamblack.png' },
         ],
       },
     ],
@@ -125,7 +116,6 @@ export const STEPS = [
         image: '/images/hub.png',
         price: { active: 0, compareAt: 2992 },
       },
-      
     ],
   },
   {

@@ -117,7 +117,7 @@ export function buildReviewGroups(state) {
   }));
 }
 
-/* ---- Totals ------------------------------------------------------------- */
+/* Totals */
 
 /**
  * Money math runs in integer cents. Pass the already-built groups to avoid

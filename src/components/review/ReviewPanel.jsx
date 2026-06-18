@@ -8,6 +8,62 @@ function formatReviewPrice(cents, perMonth = false) {
   return perMonth ? formatPerMonth(cents) : formatPriceCompact(cents);
 }
 
+function ReviewLine({ line, onQtyChange }) {
+  const imageSrc = line.product.image ?? line.variant?.image;
+
+  return (
+    <article key={line.key} className="grid grid-cols-[44px_minmax(0,1fr)] items-center gap-3">
+      <div className="h-[42px] w-[42px] shrink-0 overflow-hidden rounded-[6px] bg-white p-1">
+        <img
+          src={imageSrc}
+          alt={line.name}
+          loading="lazy"
+          className="h-full w-full object-contain"
+        />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[15px] leading-[1.1] font-medium text-ink">
+              {line.name}
+            </p>
+            {line.variant ? (
+              <p className="mt-1 text-[11px] leading-none text-ink-soft">
+                {line.variant.label}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="flex shrink-0 items-center gap-3.5">
+            {line.editable ? (
+              <QuantityStepper
+                size="sm"
+                value={line.qty}
+                onChange={(qty) => onQtyChange(line, qty)}
+                label={`${line.name} quantity`}
+              />
+            ) : null}
+
+            <div className="w-[58px] text-right">
+              {line.compareAt > line.unit ? (
+                <p className="text-[12px] text-[#7f8794] line-through">
+                  {line.perMonth
+                    ? formatPerMonth(line.compareAt)
+                    : formatPriceCompact(line.compareAt)}
+                </p>
+              ) : null}
+              <p className="text-[13px] font-semibold leading-tight text-accent">
+                {formatReviewPrice(line.lineTotal, line.perMonth)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function ReviewPanel({
   groups,
   totals,
@@ -17,6 +73,9 @@ export default function ReviewPanel({
   checkoutMessage,
 }) {
   const { actions } = useSystem();
+  const updateLineQty = (line, qty) => {
+    actions.setQty(line.productId, line.variantId, qty);
+  };
 
   return (
     <aside className="top-[44px] h-fit bg-[#edf4ff] p-5 xl:sticky xl:rounded-[8px]">
@@ -38,57 +97,7 @@ export default function ReviewPanel({
             </h3>
             <div className="mt-2 space-y-3 border-b border-[#cad3df] pb-[14px]">
               {lines.map((line) => (
-                <article key={line.key} className="grid grid-cols-[44px_minmax(0,1fr)] items-center gap-3">
-                  <div className="h-[42px] w-[42px] shrink-0 overflow-hidden rounded-[6px] bg-white p-1">
-                    <img
-                      src={line.product.image ?? line.variant?.image}
-                      alt={line.name}
-                      loading="lazy"
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-[15px] leading-[1.1] font-medium text-ink">
-                          {line.name}
-                        </p>
-                        {line.variant ? (
-                          <p className="mt-1 text-[11px] leading-none text-ink-soft">
-                            {line.variant.label}
-                          </p>
-                        ) : null}
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-3.5">
-                        {line.editable ? (
-                          <QuantityStepper
-                            size="sm"
-                            value={line.qty}
-                            onChange={(qty) =>
-                              actions.setQty(line.productId, line.variantId, qty)
-                            }
-                            label={`${line.name} quantity`}
-                          />
-                        ) : null}
-
-                        <div className="w-[58px] text-right">
-                          {line.compareAt > line.unit ? (
-                            <p className="text-[12px] text-[#7f8794] line-through">
-                              {line.perMonth
-                                ? formatPerMonth(line.compareAt)
-                                : formatPriceCompact(line.compareAt)}
-                            </p>
-                          ) : null}
-                          <p className="text-[13px] font-semibold leading-tight text-accent">
-                            {formatReviewPrice(line.lineTotal, line.perMonth)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </article>
+                <ReviewLine key={line.key} line={line} onQtyChange={updateLineQty} />
               ))}
             </div>
           </section>

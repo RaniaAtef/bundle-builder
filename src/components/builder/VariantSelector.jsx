@@ -10,10 +10,10 @@ export default function VariantSelector({ product, activeId, onSelect }) {
             type="button"
             onClick={() => onSelect(variant.id)}
             className={`inline-flex items-center gap-1.5 rounded-[6px] px-2.5 py-1 text-sm transition flex-shrink-0 ${
-                selected
-                  ? 'border-2 border-[#8eeadf] bg-[#fafffe] text-ink'
-                  : 'border border-[#d8dce4] bg-white text-ink hover:border-accent'
-              }`}
+              selected
+                ? 'border-2 border-[#8eeadf] bg-[#fafffe] text-ink'
+                : 'border border-[#d8dce4] bg-white text-ink hover:border-accent'
+            }`}
             aria-pressed={selected}
             aria-label={variant.label}
           >

@@ -7,6 +7,10 @@ const MAX_QTY = 99;
 
 export const SystemContext = createContext(null);
 
+function clampQty(qty) {
+  return Math.max(0, Math.min(MAX_QTY, Math.trunc(qty)));
+}
+
 function getInitialState() {
   const saved = loadSavedState();
   return saved ? { ...seedState, ...saved } : { ...seedState };
@@ -42,7 +46,7 @@ export function SystemProvider({ children }) {
       setQty: (productId, variantId, nextQty) => {
         setState((current) => {
           const key = lineKey(productId, variantId);
-          const qty = Math.max(0, Math.min(MAX_QTY, Math.trunc(nextQty)));
+          const qty = clampQty(nextQty);
           const quantities = { ...current.quantities };
 
           if (qty === 0) {

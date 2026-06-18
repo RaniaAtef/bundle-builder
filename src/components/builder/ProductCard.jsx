@@ -7,11 +7,13 @@ import VariantSelector from './VariantSelector';
 export default function ProductCard({ product, step, isPlanSelected }) {
   const { state, actions } = useSystem();
   const isCameraStep = step.id === 'cameras';
+  const isPlanStep = step.select === 'single';
   const variantId = activeVariantId(state, product);
   const variant = product.variants?.find((item) => item.id === variantId) ?? null;
   const qty = productQty(state, product);
-  const selected = step.select === 'single' ? isPlanSelected : isProductSelected(state, product);
-  const price = step.select === 'single' ? formatPerMonth : formatPriceCompact;
+  const selected = isPlanStep ? isPlanSelected : isProductSelected(state, product);
+  const price = isPlanStep ? formatPerMonth : formatPriceCompact;
+  const imageSrc = product.image ?? variant?.image;
 
   const setQty = (nextQty) => actions.setQty(product.id, variantId, nextQty);
 
@@ -38,7 +40,7 @@ export default function ProductCard({ product, step, isPlanSelected }) {
           }`}
         >
           <img
-            src={product.image ?? variant?.image}
+            src={imageSrc}
             alt={product.title}
             loading="lazy"
             className="h-full w-full object-contain"
@@ -80,7 +82,7 @@ export default function ProductCard({ product, step, isPlanSelected }) {
       >
         {isCameraStep ? <span /> : null}
         <div className="flex flex-1 items-end justify-between gap-3">
-          {step.select === 'single' ? (
+          {isPlanStep ? (
             <button
               type="button"
               onClick={() => actions.selectPlan(product.id)}
