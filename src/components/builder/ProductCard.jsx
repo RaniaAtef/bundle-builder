@@ -62,6 +62,12 @@ export default function ProductCard({ product, step, isPlanSelected }) {
           >
             {product.description}
           </p>
+          <button
+            type="button"
+            className="mt-1.5 inline-block text-[13px] font-medium text-accent underline decoration-1 underline-offset-2 transition hover:text-accent-ink"
+          >
+            Learn More
+          </button>
 
           {product.variants?.length ? (
             <div className="mt-2">
