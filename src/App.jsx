@@ -16,12 +16,23 @@ function AppContent() {
   const reviewGroups = useMemo(() => buildReviewGroups(state), [state]);
   const totals = useMemo(() => computeTotals(reviewGroups), [reviewGroups]);
 
-  const handleSave = () => {
-    const savedAt = save();
+  const handleSave = async () => {
+    const bundle = await save();
+
+    if (!bundle) {
+      setSavedMessage('Saving failed in this browser session.');
+      return;
+    }
+
+    if (bundle.localOnly) {
+      setSavedMessage('System saved in this browser. Reload and it will restore exactly as-is.');
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('bundle', bundle.id);
     setSavedMessage(
-      savedAt
-        ? 'System saved in this browser. Reload and it will restore exactly as-is.'
-        : 'Saving failed in this browser session.',
+      `System saved. Share or revisit this link: ${url.toString()}`,
     );
   };
 

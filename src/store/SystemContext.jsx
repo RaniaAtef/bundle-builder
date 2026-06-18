@@ -1,7 +1,13 @@
-import { createContext, useCallback, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { seedState } from '../data/seed';
 import { lineKey } from '../lib/keys';
-import { loadSavedState, saveState, clearSavedState } from './persistence';
+import {
+  loadBundle,
+  loadSavedState,
+  saveBundle,
+  saveState,
+  clearSavedState,
+} from './persistence';
 
 const MAX_QTY = 99;
 
@@ -19,6 +25,26 @@ function getInitialState() {
 export function SystemProvider({ children }) {
   const [state, setState] = useState(getInitialState);
   const wasRestored = useRef(state.savedAt != null).current;
+
+  useEffect(() => {
+    const bundleId = new URLSearchParams(window.location.search).get('bundle');
+    if (!bundleId) return undefined;
+
+    let ignore = false;
+
+    loadBundle(bundleId)
+      .then((saved) => {
+        if (ignore) return;
+        const restored = { ...seedState, ...saved };
+        saveState(restored);
+        setState(restored);
+      })
+      .catch(() => {});
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const actions = useMemo(
     () => ({
@@ -71,7 +97,14 @@ export function SystemProvider({ children }) {
     [],
   );
 
-  const save = useCallback(() => saveState(state), [state]);
+  const save = useCallback(async () => {
+    try {
+      return await saveBundle(state);
+    } catch {
+      const savedAt = saveState(state);
+      return savedAt ? { savedAt, localOnly: true } : null;
+    }
+  }, [state]);
 
   const value = useMemo(
     () => ({ state, actions, save, wasRestored }),
