@@ -29,3 +29,12 @@ npm run preview
 - Variant quantities are tracked independently per product variant and stay in sync with the review panel.
 - "Save my system for later" stores the current configuration through the Node API and keeps `localStorage` as a fallback.
 - Product imagery is stored under `public/images` and referenced from the catalog.
+
+## What we used
+
+- **React:** `react` and `react-dom` for component-driven UI.
+- **Vite:** fast dev server and build tool.
+- **Tailwind CSS:** utility-first styling.
+- **lucide-react:** lightweight SVG icon components used in some UI bits.
+- **Node:** minimal API for serving the catalog and persisting bundles (invoked via `npm run api`).
+- **LocalStorage:** client-side fallback persistence (see `STORAGE_KEY` in `src/data/seed.js`).
