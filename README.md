@@ -30,7 +30,7 @@ npm run preview
 - "Save my system for later" stores the current configuration through the Node API and keeps `localStorage` as a fallback.
 - Product imagery is stored under `public/images` and referenced from the catalog.
 
-## What we used
+## What I used
 
 - **React:** `react` and `react-dom` for component-driven UI.
 - **Vite:** fast dev server and build tool.
